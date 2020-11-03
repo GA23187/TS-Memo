@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>评论案例</title>
+    <style>
+    </style>
+</head>
+
+<body>
+    <div class="father">
+        <div class="commens" id="commens">
+            评论：
+        </div>
+        <div class="add">
+            <input type="texteara" id="txtComment">
+            <input type="button" value="发表" id="btnOK">
+        </div>
+    </div>
+</body>
+<script src="./js/04localStorage.js"></script>
+<script>
+    //评论div对象
+    let divFather = document.querySelector('#commens')
+    // 文本域对象
+    let txtComm = document.querySelector('#txtComment')
+
+    // 实例化DataHelper类，设置好数据键和评论项id名称
+    let db = new DataHelper('plData', 'plId')
+    // ------------------事件--------------------------
+    // 【页面加载生成div】
+    // 1.读取 本地数据
+    // 2.遍历评论数组，根据plid和content生成div
+
+    window.onload = function () {
+        let arr = db.readData()
+        for (let ele of arr) {
+            makeDiv(ele.plId, ele.content)
+        }
+    }
+
+
+    // 【发表评论】
+    // 1.获取评论数据，将数据添加到本地,得到plid
+    // 2.根据plid和content生成div,添加到评论区
+    document.querySelector('#btnOK').onclick = function () {
+        // 获取文本域内容
+        let strContent = txtComm.value
+        // 添加到localStorage中
+        let id = db.addData(strContent)
+        // 生成评论div
+        makeDiv(id, strContent)
+        // 清楚文本域输入内容
+        txtComm.value = ''
+
+    }
+
+    // ------------------业务--------------------------
+
+    // 创建评论div方法(***plId ***)
+    function makeDiv(plId, strPLContent) {
+        // 创建评论内容div
+        let divObj = document.createElement('div')
+        divObj.innerHTML = strPLContent
+        divFather.appendChild(divObj)
+
+        let spanObj = document.createElement('span')
+        spanObj.innerHTML = "x"
+        spanObj.setAttribute('plid', plId)
+        // 绑定删除事件
+        spanObj.onclick = remove
+        // 将span添加到内容div中
+        divObj.appendChild(spanObj)
+    }
+    // 删除评论
+    function remove(e) {
+        if (!confirm('删除')) {
+            return
+        }
+        // 获取到删除标签span
+        let btnDel = e.srcElement
+        let conDiv = btnDel.parentNode
+        // 获取到内容div的父，来删除内容div
+        conDiv.parentNode.removeChild(conDiv)
+
+        let id = btnDel.getAttribute('plid')
+        db.removeDataById(id)
+
+    }
+</script>
+
+</html>
